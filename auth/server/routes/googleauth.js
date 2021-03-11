@@ -46,8 +46,10 @@ router.get('/googleAuth', (req, res) => {
             // console.log(drive.createFile(oAuth2Client));
             console.log("=======================")
             // console.log(drive.createJSFolder(oAuth2Client));
-            // console.log(drive.createJSFile(oAuth2Client));
+            //console.log(drive.createJSFile(oAuth2Client));
             drive.findFilesInFolder(oAuth2Client);
+            res.sendFile('/Users/ardeeter/digitalCraftsHomework/googleAuth/auth/server/photo.txt')
+            
           //   let storedJSFolder = await db.userFiles.create({
           //     userID: 1,
           //     folderID: file.data.id,

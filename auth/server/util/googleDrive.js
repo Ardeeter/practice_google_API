@@ -122,61 +122,98 @@ async function createJSFile(auth){
     
 }
 
+function downloadFiles(drive, name, id) {
+    var pageToken = null;
+    // Using the NPM module 'async'
+    console.log(name, id)
+    async.doWhilst(function (callback) {
+        drive.files.list({
+            q: "'1aLcSATR5P9tm6jOp8Y5ec9iICYAG_U0d' in parents",
+            fields: 'files(id, name)',
+            spaces: 'drive',
+            pageToken: pageToken
+        }, function (err, res) {
+            if (err) {
+            // Handle error
+            console.error(err);
+            callback(err)
+            } else {
+            res.files.forEach(function (file) {
+                console.log('Found file: ', file.name, file.id);
+            });
+            pageToken = res.nextPageToken;
+            callback();
+            }
+        });
+        }, function () {
+        return !!pageToken;
+        }, function (err) {
+        if (err) {
+            // Handle error
+            console.error(err);
+        } else {
+            // All pages fetched
+        }
+    })
+}
+
 function findFilesInFolder(auth){
     const drive = google.drive({version: 'v3', auth});
-    let pageToken = null;
+    var pageToken = null;
 // Using the NPM module 'async'
     async.doWhilst(function (callback) {
-    drive.files.list({
-        q: "'1aLcSATR5P9tm6jOp8Y5ec9iICYAG_U0d' in parents",
-        fields: 'files(id, name, mimeType)',
-        spaces: 'drive',
-        pageToken: pageToken
-    }
-    , function (err, res) {
-        if (err) {
-        // Handle error
-        console.error(err);
-        callback(err)
-        } else {
-        res.data.files.forEach(function (file) {
-            console.log('Found file: ', file.name, file.id);
-            const dest = fs.createWriteStream('/temp/photo.jpg')
-            drive.files.get({fileId: "1fL81q6zIb1r42H6Ux2ADgkMIG2jp0PrF", alt: 'media'}, {responseType: 'stream'},
-                function(err, res){
-                    res.data
-                    .on('end', () => {
-                        console.log('Done');
-                    })
-                    .on('error', err => {
-                        console.log('Error', err);
-                    })
-                    .pipe(dest);
-                }
-            );
-        });
+        drive.files.list({
+            q: "mimeType = 'application/vnd.google-apps.folder' and name='JavaScript'",
+            fields: 'files(id, name)',
+            spaces: 'drive',
+            pageToken: pageToken
+        }, function (err, res) {
+            console.log(res.data.files)
+            if (err) {
+            // Handle error
+            console.error(err);
+            callback(err)
+            } else {
+                
+            res.data.files.forEach(function (file) {
+                console.log('Found file: ', file.name, file.id);
+                downloadFiles(drive, file.name, file.id)
 
-        pageToken = res.nextPageToken;
-        callback();
+            //     var dest = fs.createWriteStream('./photo.jpg');
+            //     drive.files.get({fileId: file.id, alt: 'media'}, {responseType: 'stream'},
+            //     function(err, res){
+            //         res.data
+            //         .on('end', () => {
+            //             console.log('Done');
+            //         })
+            //         .on('error', err => {
+            //             console.log('Error', err);
+            //         })
+            //         .pipe(dest);
+            //     }
+            // );
+                
+            });
+            pageToken = res.nextPageToken;
+            callback();
+            }
+        });
+        }, function () {
+        return !!pageToken;
+        }, function (err) {
+        if (err) {
+            // Handle error
+            console.error(err);
+        } else {
+            // All pages fetched
         }
-    });
-    }, function () {
-    return !!pageToken;
-    }, function (err) {
-    if (err) {
-        // Handle error
-        console.error(err);
-    } else {
-        // All pages fetched
-    }
-    }
-    )
+    })
 
 
 
 
     // var pageToken = null;
-    // // Using the NPM module 'async'
+    // Using the NPM module 'async'
     // async.doWhilst(function (callback) {
     // drive.files.list({
     //     q: `1aLcSATR5P9tm6jOp8Y5ec9iICYAG_U0d in parents`,
